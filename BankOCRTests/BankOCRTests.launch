@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.junit.launchconfig">
+<listAttribute key="classFilters">
+<listEntry value="ClassFilter(exclude, *Test.*)"/>
+<listEntry value="ClassFilter(exclude, *Mock*)"/>
+</listAttribute>
 <listAttribute key="com.mountainminds.eclemma.core.SCOPE_IDS">
 <listEntry value="=BankOCR/src"/>
 </listAttribute>
