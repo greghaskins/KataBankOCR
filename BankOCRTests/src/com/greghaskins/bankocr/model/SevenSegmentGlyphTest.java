@@ -1,7 +1,9 @@
 package com.greghaskins.bankocr.model;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 
 import java.util.Arrays;
@@ -14,11 +16,92 @@ import org.junit.Test;
 public class SevenSegmentGlyphTest {
 
     @Test
+    public void implementsGlyphInterface() throws Exception {
+        assertThat(new SevenSegmentGlyph(makeRandomSetOfSegments()), instanceOf(Glyph.class));
+    }
+
+    @Test
     public void getActivatedSegments() throws Exception {
         final Set<Segment> activatedSegments = makeRandomSetOfSegments();
 
         final SevenSegmentGlyph glyph = new SevenSegmentGlyph(activatedSegments);
-        assertThat(glyph.getActivatedSegments(), equalTo(activatedSegments));
+        assertThat(glyph.getActivatedSegments(), equalTo((Iterable<Segment>) activatedSegments));
+    }
+
+    @Test
+    public void digitZero() throws Exception {
+        assertThat(
+                SevenSegmentGlyph.ZERO.getActivatedSegments(),
+                containsInAnyOrder(Segment.TOP, Segment.TOP_RIGHT, Segment.BOTTOM_RIGHT,
+                        Segment.BOTTOM, Segment.BOTTOM_LEFT, Segment.TOP_LEFT));
+    }
+
+    @Test
+    public void digitOne() throws Exception {
+        assertThat(SevenSegmentGlyph.ONE.getActivatedSegments(),
+                containsInAnyOrder(Segment.TOP_RIGHT, Segment.BOTTOM_RIGHT));
+    }
+
+    @Test
+    public void digitTwo() throws Exception {
+        assertThat(
+                SevenSegmentGlyph.TWO.getActivatedSegments(),
+                containsInAnyOrder(Segment.TOP, Segment.TOP_RIGHT, Segment.BOTTOM,
+                        Segment.BOTTOM_LEFT, Segment.CENTER));
+    }
+
+    @Test
+    public void digitThree() throws Exception {
+        assertThat(
+                SevenSegmentGlyph.THREE.getActivatedSegments(),
+                containsInAnyOrder(Segment.TOP, Segment.TOP_RIGHT, Segment.BOTTOM_RIGHT,
+                        Segment.BOTTOM, Segment.CENTER));
+    }
+
+    @Test
+    public void digitFour() throws Exception {
+        assertThat(
+                SevenSegmentGlyph.FOUR.getActivatedSegments(),
+                containsInAnyOrder(Segment.TOP_RIGHT, Segment.BOTTOM_RIGHT, Segment.TOP_LEFT,
+                        Segment.CENTER));
+    }
+
+    @Test
+    public void digitFive() throws Exception {
+        assertThat(
+                SevenSegmentGlyph.FIVE.getActivatedSegments(),
+                containsInAnyOrder(Segment.TOP, Segment.BOTTOM_RIGHT, Segment.BOTTOM,
+                        Segment.TOP_LEFT, Segment.CENTER));
+    }
+
+    @Test
+    public void digitSix() throws Exception {
+        assertThat(
+                SevenSegmentGlyph.SIX.getActivatedSegments(),
+                containsInAnyOrder(Segment.TOP, Segment.TOP_LEFT, Segment.BOTTOM_LEFT,
+                        Segment.BOTTOM, Segment.BOTTOM_RIGHT, Segment.CENTER));
+    }
+
+    @Test
+    public void digitSeven() throws Exception {
+        assertThat(SevenSegmentGlyph.SEVEN.getActivatedSegments(),
+                containsInAnyOrder(Segment.TOP, Segment.TOP_RIGHT, Segment.BOTTOM_RIGHT));
+    }
+
+    @Test
+    public void digitEight() throws Exception {
+        assertThat(
+                SevenSegmentGlyph.EIGHT.getActivatedSegments(),
+                containsInAnyOrder(Segment.TOP, Segment.TOP_RIGHT, Segment.BOTTOM_RIGHT,
+                        Segment.BOTTOM, Segment.BOTTOM_LEFT, Segment.TOP_LEFT, Segment.CENTER));
+    }
+
+    @Test
+    public void digitNine() throws Exception {
+        assertThat(
+                SevenSegmentGlyph.NINE.getActivatedSegments(),
+                containsInAnyOrder(Segment.CENTER, Segment.TOP_LEFT, Segment.TOP,
+                        Segment.TOP_RIGHT, Segment.BOTTOM_RIGHT, Segment.BOTTOM));
     }
 
     @Test

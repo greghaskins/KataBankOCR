@@ -2,18 +2,52 @@ package com.greghaskins.bankocr.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Set;
 
-public class SevenSegmentGlyph {
+public class SevenSegmentGlyph implements Glyph {
+
+    public static final SevenSegmentGlyph ZERO = new SevenSegmentGlyph(EnumSet.of(Segment.TOP,
+            Segment.TOP_RIGHT, Segment.BOTTOM_RIGHT, Segment.BOTTOM, Segment.BOTTOM_LEFT,
+            Segment.TOP_LEFT));
+
+    public static final SevenSegmentGlyph ONE = new SevenSegmentGlyph(EnumSet.of(Segment.TOP_RIGHT,
+            Segment.BOTTOM_RIGHT));
+
+    public static final SevenSegmentGlyph TWO = new SevenSegmentGlyph(EnumSet.of(Segment.TOP,
+            Segment.TOP_RIGHT, Segment.BOTTOM, Segment.BOTTOM_LEFT, Segment.CENTER));
+
+    public static final SevenSegmentGlyph THREE = new SevenSegmentGlyph(EnumSet.of(Segment.TOP,
+            Segment.TOP_RIGHT, Segment.BOTTOM_RIGHT, Segment.BOTTOM, Segment.CENTER));
+
+    public static final SevenSegmentGlyph FOUR = new SevenSegmentGlyph(EnumSet.of(
+            Segment.TOP_RIGHT, Segment.BOTTOM_RIGHT, Segment.TOP_LEFT, Segment.CENTER));
+
+    public static final SevenSegmentGlyph FIVE = new SevenSegmentGlyph(EnumSet.of(Segment.TOP,
+            Segment.BOTTOM_RIGHT, Segment.BOTTOM, Segment.TOP_LEFT, Segment.CENTER));
+
+    public static final SevenSegmentGlyph SIX = new SevenSegmentGlyph(EnumSet.of(Segment.TOP,
+            Segment.BOTTOM_RIGHT, Segment.BOTTOM, Segment.BOTTOM_LEFT, Segment.TOP_LEFT,
+            Segment.CENTER));
+
+    public static final SevenSegmentGlyph SEVEN = new SevenSegmentGlyph(EnumSet.of(Segment.TOP,
+            Segment.TOP_RIGHT, Segment.BOTTOM_RIGHT));
+
+    public static final SevenSegmentGlyph EIGHT = new SevenSegmentGlyph(EnumSet.of(Segment.TOP,
+            Segment.TOP_RIGHT, Segment.BOTTOM_RIGHT, Segment.BOTTOM, Segment.BOTTOM_LEFT,
+            Segment.TOP_LEFT, Segment.CENTER));
+
+    public static final SevenSegmentGlyph NINE = new SevenSegmentGlyph(EnumSet.of(Segment.TOP,
+            Segment.TOP_RIGHT, Segment.BOTTOM_RIGHT, Segment.BOTTOM, Segment.TOP_LEFT,
+            Segment.CENTER));
 
     private final Set<Segment> activatedSegments;
 
     public SevenSegmentGlyph(final Set<Segment> activatedSegments) {
         this.activatedSegments = activatedSegments;
-
     }
 
-    public Set<Segment> getActivatedSegments() {
+    public Iterable<Segment> getActivatedSegments() {
         return this.activatedSegments;
     }
 
@@ -44,7 +78,6 @@ public class SevenSegmentGlyph {
 
     @Override
     public String toString() {
-        // TODO Auto-generated method stub
         final ArrayList<Segment> sortedActivatedSegments = new ArrayList<Segment>(
                 this.activatedSegments);
         Collections.sort(sortedActivatedSegments);
