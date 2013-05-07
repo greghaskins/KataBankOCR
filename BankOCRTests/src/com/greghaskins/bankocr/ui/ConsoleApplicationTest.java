@@ -1,10 +1,15 @@
 package com.greghaskins.bankocr.ui;
 
+import static com.greghaskins.bankocr.model.AccountNumberTest.makeAccountNumber;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
@@ -13,8 +18,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.greghaskins.bankocr.ui.Application;
-import com.greghaskins.bankocr.ui.ConsoleApplication;
+import com.greghaskins.bankocr.control.AccountEntryLexer;
+import com.greghaskins.bankocr.control.AccountEntryParser;
+import com.greghaskins.bankocr.model.AccountNumber;
+import com.greghaskins.bankocr.model.Glyph;
+import com.greghaskins.bankocr.model.TokenizedEntry;
 
 public class ConsoleApplicationTest {
 
@@ -22,12 +30,20 @@ public class ConsoleApplicationTest {
     private ConsoleApplication application;
     private PrintStream outputStream;
     private ByteArrayOutputStream underlyingOutputStream;
+    private AccountEntryLexer mockLexer;
+    private AccountEntryParser mockParser;
+    private BufferedReader mockBufferedReader;
 
     @Before
     public void setUp() throws Exception {
         this.underlyingOutputStream = new ByteArrayOutputStream();
         this.outputStream = new PrintStream(this.underlyingOutputStream);
-        this.application = new ConsoleApplication();
+
+        this.mockBufferedReader = mock(BufferedReader.class);
+
+        this.mockLexer = mock(AccountEntryLexer.class);
+        this.mockParser = mock(AccountEntryParser.class);
+        this.application = new ConsoleApplication(this.mockLexer, this.mockParser);
     }
 
     @After
@@ -42,13 +58,78 @@ public class ConsoleApplicationTest {
     }
 
     @Test
-    public void writesHelloWorldToTheConsoleForNow() throws Exception {
-        this.application.run(null, this.outputStream);
-        final String outputText = this.getPrintedOutput();
-        assertThat(outputText, is(equalTo("Hello World.\n")));
+    public void readsFourLinesAndWritesDisplayValueOfAccountNumber() throws Exception {
+
+        final TokenizedEntry tokenizedEntry = makeTokenizedEntry(mock(Glyph.class));
+        final AccountNumber accountNumber = makeAccountNumber(4, 5, 7, 5, 0, 8, 0, 0, 0);
+
+        when(this.mockBufferedReader.readLine()).thenReturn("apples", "bananas", "cherries",
+                "dragonfruit", null);
+        when(this.mockLexer.tokenizeEntry("apples", "bananas", "cherries")).thenReturn(
+                tokenizedEntry);
+        when(this.mockParser.parseEntry(tokenizedEntry)).thenReturn(accountNumber);
+
+        this.application.run(this.mockBufferedReader, this.outputStream);
+
+        final String printedOutput = this.getPrintedOutput();
+        assertThat(printedOutput, equalTo("457508000\n"));
+    }
+
+    @Test
+    public void readsGroupsOfFourLinesAtATimeAndGeneratesOutputIteratively() throws Exception {
+        final TokenizedEntry tokenizedEntry1 = makeTokenizedEntry(mock(Glyph.class));
+        final TokenizedEntry tokenizedEntry2 = makeTokenizedEntry(mock(Glyph.class));
+        final AccountNumber accountNumber1 = makeAccountNumber(4, 5, 7, 5, 0, 8, 0, 0, 0);
+        final AccountNumber accountNumber2 = makeAccountNumber(6, 6, 4, 3, 7, 1, 4, 9, 5);
+
+        when(this.mockBufferedReader.readLine()).thenReturn("apples", "bananas", "cherries",
+                "dragonfruit", "eggplant", "figs", "grapes", "honeydew", null);
+        when(this.mockLexer.tokenizeEntry("apples", "bananas", "cherries")).thenReturn(
+                tokenizedEntry1);
+        when(this.mockLexer.tokenizeEntry("eggplant", "figs", "grapes"))
+                .thenReturn(tokenizedEntry2);
+        when(this.mockParser.parseEntry(tokenizedEntry1)).thenReturn(accountNumber1);
+        when(this.mockParser.parseEntry(tokenizedEntry2)).thenReturn(accountNumber2);
+
+        this.application.run(this.mockBufferedReader, this.outputStream);
+
+        final String printedOutput = this.getPrintedOutput();
+        assertThat(printedOutput, equalTo("457508000\n" + "664371495\n"));
+    }
+
+    @Test
+    public void doesNotAttemptToLexOrParseIfInputHasExtraLinesNotMakingAFullEntry()
+            throws Exception {
+        when(this.mockBufferedReader.readLine()).thenReturn("apples", "bananas", null);
+
+        this.application.run(this.mockBufferedReader, this.outputStream);
+
+        verifyZeroInteractions(this.mockLexer, this.mockParser);
+
+        final String printedOutput = this.getPrintedOutput();
+        assertThat(printedOutput, equalTo(""));
+    }
+
+    @Test
+    public void canGetAccountEntryLexer() throws Exception {
+        assertThat(this.application.getLexer(), equalTo(this.mockLexer));
+    }
+
+    @Test
+    public void canGetAccountEntryParser() throws Exception {
+        assertThat(this.application.getParser(), equalTo(this.mockParser));
     }
 
     private String getPrintedOutput() {
-        return new String(this.underlyingOutputStream.toByteArray(), ConsoleApplicationTest.UTF8);
+        return new String(this.underlyingOutputStream.toByteArray(), UTF8);
     }
+
+    private static TokenizedEntry makeTokenizedEntry(final Glyph... glyphs) {
+        final TokenizedEntry tokenizedEntry = new TokenizedEntry();
+        for (final Glyph glyph : glyphs) {
+            tokenizedEntry.add(glyph);
+        }
+        return tokenizedEntry;
+    }
+
 }

@@ -21,6 +21,14 @@ public class AccountNumberTest {
         assertThat(accountNumber.getDigits(), equalTo(digits));
     }
 
+    @Test
+    public void displayValueComesFromDigits() throws Exception {
+        final AccountNumber accountNumber = new AccountNumber(Digit.EIGHT, Digit.TWO, Digit.EIGHT,
+                Digit.NINE, Digit.SEVEN, Digit.ONE, Digit.UNKNOWN, Digit.THREE, Digit.SIX);
+
+        assertThat(accountNumber.getDisplayValue(), equalTo("828971?36"));
+    }
+
     public static AccountNumber makeAccountNumber(final Integer... integers) {
         final Digit[] digits = new Digit[integers.length];
         for (int index = 0; index < integers.length; index++) {

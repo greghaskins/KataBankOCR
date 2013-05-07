@@ -7,6 +7,9 @@
 <listEntry value="1"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.debug.ui.ATTR_CONSOLE_ENCODING" value="UTF-8"/>
+<listAttribute key="org.eclipse.debug.ui.favoriteGroups">
+<listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
+</listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.greghaskins.bankocr.ui.ConsoleApplicationRunner"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="BankOCR"/>
 </launchConfiguration>
