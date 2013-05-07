@@ -1,5 +1,10 @@
 package com.greghaskins.bankocr.ui;
 
+import java.io.IOException;
+
+import com.greghaskins.bankocr.control.SimpleBufferedReader;
+import com.greghaskins.bankocr.control.SimpleInputStreamReader;
+
 public class ConsoleApplicationRunner {
 
     private static ApplicationFactory applicationFactory = new ConsoleApplicationFactory();
@@ -14,11 +19,23 @@ public class ConsoleApplicationRunner {
 
     public static void main(final String[] commandLineArguments) {
         final ConsoleApplicationRunner runner = new ConsoleApplicationRunner();
-        runner.buildApplicationAndRun();
+        try {
+            runner.buildApplicationAndRun();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    private void buildApplicationAndRun() {
+    private void buildApplicationAndRun() throws IOException {
         final Application application = applicationFactory.buildApplication();
-        application.run(System.in, System.out);
+
+        final SimpleInputStreamReader inputStreamReader = new SimpleInputStreamReader(System.in);
+        final SimpleBufferedReader bufferedReader = new SimpleBufferedReader(inputStreamReader);
+        try {
+            application.run(bufferedReader, System.out);
+        } finally {
+            bufferedReader.close();
+            inputStreamReader.close();
+        }
     }
 }

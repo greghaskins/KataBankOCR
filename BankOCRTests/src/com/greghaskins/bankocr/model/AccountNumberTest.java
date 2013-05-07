@@ -15,7 +15,7 @@ public class AccountNumberTest {
     }
 
     @Test
-    public void getDigits() throws Exception {
+    public void canGetDigits() throws Exception {
         final Digit[] digits = getRandomDigits();
         final AccountNumber accountNumber = new AccountNumber(digits);
         assertThat(accountNumber.getDigits(), equalTo(digits));
