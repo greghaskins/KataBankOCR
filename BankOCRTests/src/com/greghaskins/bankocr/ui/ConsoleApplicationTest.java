@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -21,6 +22,7 @@ import org.junit.Test;
 import com.greghaskins.bankocr.control.AccountEntryLexer;
 import com.greghaskins.bankocr.control.AccountEntryParser;
 import com.greghaskins.bankocr.model.AccountNumber;
+import com.greghaskins.bankocr.model.ChecksumCalculator;
 import com.greghaskins.bankocr.model.Glyph;
 import com.greghaskins.bankocr.model.TokenizedEntry;
 
@@ -33,6 +35,7 @@ public class ConsoleApplicationTest {
     private AccountEntryLexer mockLexer;
     private AccountEntryParser mockParser;
     private BufferedReader mockBufferedReader;
+    private ChecksumCalculator mockCalculator;
 
     @Before
     public void setUp() throws Exception {
@@ -43,7 +46,9 @@ public class ConsoleApplicationTest {
 
         this.mockLexer = mock(AccountEntryLexer.class);
         this.mockParser = mock(AccountEntryParser.class);
-        this.application = new ConsoleApplication(this.mockLexer, this.mockParser);
+        this.mockCalculator = mock(ChecksumCalculator.class);
+        this.application = new ConsoleApplication(this.mockLexer, this.mockParser,
+                this.mockCalculator);
     }
 
     @After
@@ -98,6 +103,23 @@ public class ConsoleApplicationTest {
     }
 
     @Test
+    public void usesChecksumCalculatorToGetAccountNumberDisplayValue() throws Exception {
+        final TokenizedEntry tokenizedEntry = makeTokenizedEntry(mock(Glyph.class));
+        final AccountNumber mockAccountNumber = mock(AccountNumber.class);
+
+        when(this.mockBufferedReader.readLine()).thenReturn("bibbidi", "bobbidi", "boo", "", null);
+        when(this.mockLexer.tokenizeEntry("bibbidi", "bobbidi", "boo")).thenReturn(tokenizedEntry);
+        when(this.mockParser.parseEntry(tokenizedEntry)).thenReturn(mockAccountNumber);
+        when(mockAccountNumber.getDisplayValue(this.mockCalculator)).thenReturn("Cinderella");
+
+        this.application.run(this.mockBufferedReader, this.outputStream);
+
+        final String printedOutput = this.getPrintedOutput();
+        assertThat(printedOutput, equalTo("Cinderella\n"));
+        verify(mockAccountNumber).getDisplayValue(this.mockCalculator);
+    }
+
+    @Test
     public void doesNotAttemptToLexOrParseIfInputHasExtraLinesNotMakingAFullEntry()
             throws Exception {
         when(this.mockBufferedReader.readLine()).thenReturn("apples", "bananas", null);
@@ -118,6 +140,11 @@ public class ConsoleApplicationTest {
     @Test
     public void canGetAccountEntryParser() throws Exception {
         assertThat(this.application.getParser(), equalTo(this.mockParser));
+    }
+
+    @Test
+    public void canGetChecksumVerifier() throws Exception {
+        assertThat(this.application.getChecksumCalculator(), equalTo(this.mockCalculator));
     }
 
     private String getPrintedOutput() {

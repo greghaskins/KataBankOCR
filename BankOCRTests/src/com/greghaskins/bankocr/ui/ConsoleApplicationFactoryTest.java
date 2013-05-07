@@ -9,6 +9,7 @@ import org.junit.Test;
 import com.greghaskins.bankocr.control.AccountEntryLexer;
 import com.greghaskins.bankocr.control.AccountEntryParser;
 import com.greghaskins.bankocr.control.GlyphScanner;
+import com.greghaskins.bankocr.model.ChecksumCalculator;
 
 public class ConsoleApplicationFactoryTest {
     private ConsoleApplicationFactory factory;
@@ -24,7 +25,7 @@ public class ConsoleApplicationFactoryTest {
     }
 
     @Test
-    public void buildsConsoleApplicationWithLexerAndParser() throws Exception {
+    public void buildsConsoleApplicationWithLexer() throws Exception {
         final ConsoleApplication application = this.factory.buildApplication();
         assertThat(application, instanceOf(ConsoleApplication.class));
 
@@ -32,6 +33,22 @@ public class ConsoleApplicationFactoryTest {
         assertThat(application.getLexer().getGlyphScanner(), instanceOf(GlyphScanner.class));
 
         assertThat(application.getParser(), instanceOf(AccountEntryParser.class));
+    }
+
+    @Test
+    public void buildsConsoleApplicationWithParser() throws Exception {
+        final ConsoleApplication application = this.factory.buildApplication();
+        assertThat(application, instanceOf(ConsoleApplication.class));
+
+        assertThat(application.getParser(), instanceOf(AccountEntryParser.class));
+    }
+
+    @Test
+    public void buildsConsoleApplicationWithChecksumCalculator() throws Exception {
+        final ConsoleApplication application = this.factory.buildApplication();
+        assertThat(application, instanceOf(ConsoleApplication.class));
+
+        assertThat(application.getChecksumCalculator(), instanceOf(ChecksumCalculator.class));
     }
 
 }
